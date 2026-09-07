@@ -43,6 +43,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      - name: Generate Gradle wrapper if missing
+        run: |
+          if [ ! -f "android/gradlew" ]; then
+            echo "gradlew not found, generating..."
+            cd android
+            gradle wrapper --gradle-version 8.3
+            chmod +x gradlew
+          else
+            chmod +x android/gradlew
+          fi
+
       - name: Generate debug keystore
         run: |
           cd android/app
@@ -55,9 +66,6 @@ jobs:
             -storepass android \
             -keypass android \
             -dname "CN=Float Launcher, OU=FloatLauncher, O=FloatLauncher, L=Unknown, ST=Unknown, C=US"
-
-      - name: Make Gradle wrapper executable
-        run: chmod +x android/gradlew
 
       - name: Build debug APK
         run: |
