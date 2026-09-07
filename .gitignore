@@ -1,0 +1,25 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Android
+android/app/build/
+android/.gradle/
+android/local.properties
+android/app/debug.keystore
+*.jks
+*.keystore
+
+# React Native
+.bundle/
+*.lock
+!package-lock.json
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
