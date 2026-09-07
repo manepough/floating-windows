@@ -30,7 +30,7 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install dependencies
+      - name: Install Node dependencies FIRST
         run: npm install
 
       - name: Cache Gradle packages
@@ -43,16 +43,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Generate Gradle wrapper if missing
+      - name: Generate Gradle wrapper
         run: |
-          if [ ! -f "android/gradlew" ]; then
-            echo "gradlew not found, generating..."
-            cd android
-            gradle wrapper --gradle-version 8.3
-            chmod +x gradlew
-          else
-            chmod +x android/gradlew
-          fi
+          cd android
+          gradle wrapper --gradle-version 8.3 --distribution-type all
+          chmod +x gradlew
 
       - name: Generate debug keystore
         run: |
@@ -65,12 +60,12 @@ jobs:
             -validity 10000 \
             -storepass android \
             -keypass android \
-            -dname "CN=Float Launcher, OU=FloatLauncher, O=FloatLauncher, L=Unknown, ST=Unknown, C=US"
+            -dname "CN=Float Launcher, OU=Dev, O=Dev, L=Unknown, ST=Unknown, C=US"
 
       - name: Build debug APK
         run: |
           cd android
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
@@ -84,8 +79,7 @@ jobs:
           APK_PATH="android/app/build/outputs/apk/debug/app-debug.apk"
           if [ -f "$APK_PATH" ]; then
             SIZE=$(du -sh "$APK_PATH" | cut -f1)
-            echo "APK built successfully: $SIZE"
+            echo "APK built: $SIZE"
           else
-            echo "APK not found"
-            exit 1
+            echo "APK not found" && exit 1
           fi
